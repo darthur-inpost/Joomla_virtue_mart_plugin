@@ -5,7 +5,21 @@ For Joomla! InPost UK have created a Virtue Mart plugin.
 
 ### Find the New Plugin
 
-The code that is in the folders needs to be copied into the Joomla! installation root folder. Then you will need to go the Extension Manager. From there go to Discover. It should then find the InPost Shipping method for VirtueMart. Then you will need to Install the shipping method. Then you will need to go to the Plugin Manager. If you either pick the Type as "vmshipment" or filter on VM Shipment you will find the new plugin.
+The code that is in the folders needs to be copied into the Joomla! installation root folder.
+
+**NB** One of the core VirtueMart files **has** to be modified. If you simple copy all of the files into your Joomla! installation root it will overwrite the file.
+
+The file is <Joomla root>/administrator/components/com_virtuemart/virtuemart.php
+
+Or you can add the extra lines, at line 50,
+```php
+// start inpostparcels
+require_once (JPATH_PLUGINS . DS . 'vmshipment'.DS.'inpostparcels' . DS . 'inpostparcels' . DS .'helpers' . DS . 'inpostparcels_helper.php');
+inpostparcels_helper::setLang();
+// end inpostparcels
+```
+
+Then you will need to go the Extension Manager. From there go to Discover. It should then find the InPost Shipping method for VirtueMart. Then you will need to Install the shipping method. Then you will need to go to the Plugin Manager. If you either pick the Type as "vmshipment" or filter on VM Shipment you will find the new plugin.
 
 ### Switch on the New Plugin
 
