@@ -35,7 +35,7 @@ AdminUIHelper::startAdminArea ($this);
         </div>
         <div id="resultscounter"><?php echo $this->pagination->getResultsCounter (); ?></div>
     </div>
-    <table class="adminlist" cellspacing="0" cellpadding="0">
+    <table class="adminlist table table-striped" cellspacing="0" cellpadding="0">
         <thead>
         <tr>
             <th><input type="checkbox" name="toggle" value="" onclick="checkAll('<?php echo count ($this->parcelslist); ?>')"/></th>
