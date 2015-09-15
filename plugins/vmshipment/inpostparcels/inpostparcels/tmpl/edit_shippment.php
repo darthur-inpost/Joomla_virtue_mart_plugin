@@ -26,7 +26,7 @@
             <br>
             <br>&nbsp; &nbsp; &nbsp; &nbsp;<b><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_MOB_EXAMPLE'); ?> </b>
 	    <br>&nbsp; &nbsp; &nbsp; &nbsp;<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_MOB_PREFIX'); ?>
-		<input type='text' name='receiver_phone' id="receiver_phone" title="<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_MOB_TITLE'); ?>" value='<?php echo @$_POST['receiver_phone']?@$_POST['receiver_phone']:$viewData['inpostparcels']['user_phone']; ?>' />
+		<input type='text' name='receiver_phone' id="receiver_phone" class="required" title="<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_MOB_TITLE'); ?>" value='<?php echo @$_POST['receiver_phone']?@$_POST['receiver_phone']:$viewData['inpostparcels']['user_phone']; ?>' />
 
             <script type="text/javascript">
                 function user_function(value) {
@@ -85,16 +85,43 @@
                         });
                     });
 
-                    jQuery("#inpostparcels_detail").hide();
-                    if(jQuery('#<?php echo $viewData['inpostparcels']['radio_id'];?>').is(':checked')) {
-                        jQuery("#inpostparcels_detail").show();
-                    }
+			jQuery("#inpostparcels_detail").hide();
+			if(jQuery('#<?php echo $viewData['inpostparcels']['radio_id'];?>').is(':checked'))
+			{
+				jQuery("#inpostparcels_detail").show();
+				// Make the fields mandatory
+				jQuery("#receiver_phone").addClass("required");
+				jQuery("#receiver_phone").prop('required',true);
+				jQuery("#shipping_inpostparcels").addClass("required");
+				jQuery("#shipping_inpostparcels").prop('required',true);
+			}
+			else
+			{
+				// Make the fields optional
+				jQuery("#receiver_phone").removeClass("required");
+				jQuery("#receiver_phone").prop('required',false);
+				jQuery("#shipping_inpostparcels").removeClass("required");
+				jQuery("#shipping_inpostparcels").prop('required',false);
+			}
 
                     jQuery('input[type="radio"][name="virtuemart_shipmentmethod_id"]').click(function(){
-                        if(jQuery('#<?php echo $viewData['inpostparcels']['radio_id'];?>').is(':checked')) {
+			if(jQuery('#<?php echo $viewData['inpostparcels']['radio_id'];?>').is(':checked'))
+			{
                             jQuery("#inpostparcels_detail").show();
-                        }else{
+			    // Make the fields mandatory
+			    jQuery("#receiver_phone").addClass("required");
+			    jQuery("#receiver_phone").prop('required',true);
+			    jQuery("#shipping_inpostparcels").addClass("required");
+			    jQuery("#shipping_inpostparcels").prop('required',true);
+			}
+			else
+			{
                             jQuery("#inpostparcels_detail").hide();
+			    // Make the fields optional
+			    jQuery("#receiver_phone").removeClass("required");
+			    jQuery("#receiver_phone").prop('required',false);
+			    jQuery("#shipping_inpostparcels").removeClass("required");
+			    jQuery("#shipping_inpostparcels").prop('required',false);
                         }
                     });
 

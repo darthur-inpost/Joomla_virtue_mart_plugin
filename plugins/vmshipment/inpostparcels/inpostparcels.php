@@ -13,7 +13,6 @@ if (JVM_VERSION === 2 || JVM_VERSION === 3)
 }
 
 require_once (JPATH_VMINPOSTPARCELSPLUGIN . DS . 'inpostparcels' . DS . 'helpers' . DS . 'inpostparcels_helper.php');
-require(JPATH_VM_ADMINISTRATOR . DS . 'helpers' . DS . 'parameterparser.php');
 
 class plgVmShipmentInpostparcels extends vmPSPlugin
 {
@@ -115,8 +114,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	function plgVmConfirmedOrder (VirtueMartCart $cart, $order)
 	{
-		error_log("In plgVmConfirmedOrder");
-
 		if (!($method = $this->getVmPluginMethod ($order['details']['BT']->virtuemart_shipmentmethod_id)))
 		{
 			return NULL; // Another method was selected, do nothing
@@ -146,24 +143,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 			$phone = $_POST['receiver_phone'];
 		}
 
-		$parcel_detail = array(
-			'description' => JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_ORDER').$order_id,
-			'receiver' => array(
-				'email' => $_SESSION['inpostparcels']['user_email'],
-				'phone' => $phone,
-			),
-			'size'   => $_SESSION['inpostparcels']['parcel_size'],
-			'tmp_id' => inpostparcels_helper::generate(4, 15),
-			'target_machine' => $_SESSION['inpostparcels']['parcel_target_machine_id']
-		);
-
-		switch (inpostparcels_helper::getCurrentApi())
-		{
-			case 'PL':
-				$parcel_detail['cod_amount'] = ($order['details']['BT']->virtuemart_paymentmethod_id == 1)? sprintf("%.2f" ,$order['details']['BT']->order_total) : '';
-				break;
-		}
-
 		// Get the user's target locker machine ID
 		$parcel_target_machine_id = "";
 
@@ -178,6 +157,24 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 		{
 			$parcel_target_machine_id = 
 				$_POST['shipping_inpostparcels'];
+		}
+
+		$parcel_detail = array(
+			'description' => JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_ORDER').$order_id,
+			'receiver'    => array(
+				'email' => $_SESSION['inpostparcels']['user_email'],
+				'phone' => $phone,
+			),
+			'size'   => $_SESSION['inpostparcels']['parcel_size'],
+			'tmp_id' => inpostparcels_helper::generate(4, 15),
+			'target_machine' => $parcel_target_machine_id,
+		);
+
+		switch (inpostparcels_helper::getCurrentApi())
+		{
+			case 'PL':
+				$parcel_detail['cod_amount'] = ($order['details']['BT']->virtuemart_paymentmethod_id == 1)? sprintf("%.2f" ,$order['details']['BT']->order_total) : '';
+				break;
 		}
 
 		$parcel_target_machine_detail = @$_SESSION['inpostparcels']['parcelTargetAllMachinesDetail'][$parcel_target_machine_id];
@@ -282,8 +279,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	//
 	public function displayListFE (VirtueMartCart $cart, $selected = 0, &$htmlIn)
 	{
-		error_log("In displayListFE");
-
 		if ($this->getPluginMethods ($cart->vendorId) === 0)
 		{
 			if (empty($this->_name))
@@ -291,12 +286,10 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
                 		vmAdminInfo ('displayListFE cartVendorId=' . $cart->vendorId);
                 		$app = JFactory::getApplication ();
                 		$app->enqueueMessage (JText::_ ('COM_VIRTUEMART_CART_NO_' . strtoupper ($this->_psType)));
-				error_log("about to return false - after doing something.");
                 		return FALSE;
 			}
 			else
 			{
-				error_log("about to return false - without doing anything.");
 				return FALSE;
 			}
 		}
@@ -304,8 +297,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 		$html = array();
 		$method_name = $this->_psType . '_name';
 		
-		error_log("method_name = " . $method_name);
-
 		foreach ($this->methods as $method)
 		{
 			if ($this->checkConditions ($cart, $method, $cart->pricesUnformatted))
@@ -316,10 +307,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 				//$html [] = $this->getPluginHtml ($cart, $method, $selected, $methodSalesPrice);
 				$html [] = $this->getPluginHtml ($method, $selected, $methodSalesPrice);
 			}
-			else
-			{
-				error_log("CheckConditions returned a FALSE.");
-			}
 		}
 		if (!empty($html))
 		{
@@ -327,7 +314,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 			return TRUE;
 		}
 
-		error_log("about to return false - did not find any HTML.");
 		return FALSE;
 	}
 
@@ -337,8 +323,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	//protected function getPluginHtml (VirtueMartCart $cart, $plugin, $selectedPlugin, $pluginSalesPrice) {
 	protected function getPluginHtml ($plugin, $selectedPlugin, $pluginSalesPrice)
 	{
-		error_log("In getPluginHtml function.");
-
 		$pluginmethod_id = $this->_idName;
 		$pluginName = $this->_psType . '_name';
 		if ($selectedPlugin == $plugin->$pluginmethod_id) {
@@ -389,8 +373,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	//
 	protected function prepareData(VirtueMartCart $cart, $method, $radio_id)
 	{
-		error_log("***+++ in prepareData function. +++***");
-
 		//error_log("Cart = " . json_encode($cart));
 		//error_log("Method = " . json_encode($method));
 		//error_log("Radio_id = " . json_encode($radio_id));
@@ -536,6 +518,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 //        if(!in_array($address['virtuemart_country_id'], $method->ALLOWED_COUNTRY)){
 //            return false;
 //        }
+
 		if($cart->STsameAsBT == 0){
 			$type = ($cart->ST == 0 ) ? 'BT' : 'ST';
 		} else {
@@ -560,7 +543,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 
 		if(isset($result[$hash]))
 		{
-			error_log("found a HASH " . $result[$hash]);
 			return $result[$hash];
 		}
 		$orderWeight = $this->getOrderWeight ($cart, $method->WEIGHT_UNIT);
@@ -622,13 +604,11 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 		if(!$calculateDimension['isDimension'])
 		{
 			vmdebug('shipmentmethod '.$method->shipment_name.' = TRUE for variable virtuemart_country_id, Reason: bad dimensions.');
-			error_log("parcel dimensions are not correct.");
 			return false;
         	}
 
 		if (!$country_cond)
 		{
-			error_log("parcel COUNTRY is wrong, somehow.");
 			return false;
 		}
 
@@ -645,8 +625,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	function getCosts (VirtueMartCart $cart, $method, $cart_prices)
 	{
-		error_log("in getCosts function.");
-
 		return $method->PRICE;
 	}
 
@@ -659,7 +637,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 *
 	 */
 	function plgVmOnStoreInstallShipmentPluginTable ($jplugin_id) {
-		error_log("In plgVmOnStoreInstallShipmentPlugingTable function.");
 
         $db = JFactory::getDBO ();
         $db->setQuery ("SELECT count(id) as count FROM #__virtuemart_adminmenuentries WHERE name='COM_VIRTUEMART_INPOSTPARCELS_LINK'");
@@ -678,7 +655,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 * @return null
 	 */
 	public function plgVmOnSelectCheckShipment (VirtueMartCart &$cart) {
-		error_log("In plgVmOnSelectCheckShipment function.");
 
         $id = $this->_idName;
         if (!($method = $this->selectedThisByMethodId ($cart->$id))) {
@@ -732,7 +708,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 * @author Max Milbers
 	 */
 	public function plgVmDisplayListFEShipment (VirtueMartCart $cart, $selected = 0, &$htmlIn) {
-		error_log("in plgVmDisplayListFeShipment function.");
 
 		return $this->displayListFE ($cart, $selected, $htmlIn);
 	}
@@ -744,7 +719,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 * @return bool|null
 	 */
 	public function plgVmOnSelectedCalculatePriceShipment (VirtueMartCart $cart, array &$cart_prices, &$cart_prices_name) {
-		error_log("in plgVmOnSelectedCalculatePriceShipment function.");
 
 		return $this->onSelectedCalculatePrice ($cart, $cart_prices, $cart_prices_name);
 	}
@@ -761,7 +735,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	function plgVmOnCheckAutomaticSelectedShipment (VirtueMartCart $cart, array $cart_prices = array(), &$shipCounter) {
 
-		error_log("in plgVmOnCheckAutomaticSelectedShipment function.");
 		if ($shipCounter > 1) {
 			return 0;
 		}
@@ -780,19 +753,16 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	function plgVmOnShowOrderPrint ($order_number, $method_id) {
 
-		error_log("in plgVmOnShowOrderPrint function.");
 		return $this->onShowOrderPrint ($order_number, $method_id);
 	}
 
 	function plgVmDeclarePluginParamsShipment ($name, $id, &$data)
 	{
-		error_log("in plgVmDeclarePluginParamsShipment function.");
 
 		return $this->declarePluginParams ('shipment', $name, $id, $data);
 	}
 	function plgVmDeclarePluginParamsShipmentVM3 (&$data)
 	{
-		error_log("in plgVmDeclarePluginParamsShipmentVM3 function.");
 		return $this->declarePluginParams ('shipment', $data);
 	}
 
@@ -810,8 +780,6 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 
 		if (!empty($this->_psType) and !$this->selectedThis ($this->_psType, $name, $id))
 		{
-			vmWarn('not found this thingy.');
-			error_log("First things are empty.");
 			return FALSE;
 		}
 		else
@@ -819,7 +787,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 			if(empty($data['API_URL']))
 			{
 				error_log("URL is empty.");
-				vmWarn('VMSHIPMENT_WEIGHT_COUNTRIES_ZIP_CONDITION_WRONG');
+				//vmWarn('VMSHIPMENT_WEIGHT_COUNTRIES_ZIP_CONDITION_WRONG');
 			}
 		}
 

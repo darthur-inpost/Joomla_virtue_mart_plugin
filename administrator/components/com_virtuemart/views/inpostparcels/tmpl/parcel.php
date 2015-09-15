@@ -2,7 +2,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 AdminUIHelper::startAdminArea($this);
-//AdminUIHelper::imitateTabs('start','COM_VIRTUEMART_ORDER_PRINT_PO_LBL');
+AdminUIHelper::imitateTabs('start','COM_VIRTUEMART_PARCELSTATUS_DETAILS');
 
 // Get the plugins
 //JPluginHelper::importPlugin('vmpayment');
@@ -13,20 +13,21 @@ AdminUIHelper::startAdminArea($this);
 
 <script type="text/javascript" src="<?php echo inpostparcels_helper::getGeowidgetUrl(); ?>"></script>
 <script type="text/javascript">
-    function user_function(value) {
-
+function user_function(value)
+{
         var address = value.split(';');
         var openIndex = address[4];
         var sufix = '';
 
-        if(openIndex == 'source_machine') {
-            sufix = '_source';
+	if(openIndex == 'source_machine')
+	{
+		sufix = '_source';
         }
 
         //document.getElementById('town').value=address[1];
         //document.getElementById('street').value=address[2]+address[3];
-        var box_machine_name = document.getElementById('name').value;
-        var box_machine_town = document.value=address[1];
+        var box_machine_name   = document.getElementById('name').value;
+        var box_machine_town   = document.value=address[1];
         var box_machine_street = document.value=address[2];
 
 
@@ -34,18 +35,21 @@ AdminUIHelper::startAdminArea($this);
         document.getElementById('shipping_inpostparcels'+sufix).value = box_machine_name;
         var shipping_inpostparcels = document.getElementById('shipping_inpostparcels'+sufix);
 
-        for(i=0;i<shipping_inpostparcels.length;i++){
-            if(shipping_inpostparcels.options[i].value == document.getElementById('name').value){
-                shipping_inpostparcels.selectedIndex = i;
-                is_value = 1;
-            }
+	for(i = 0; i < shipping_inpostparcels.length; i++)
+	{
+		if(shipping_inpostparcels.options[i].value == document.getElementById('name').value)
+		{
+			shipping_inpostparcels.selectedIndex = i;
+			is_value = 1;
+		}
         }
 
-        if (is_value == 0){
-            shipping_inpostparcels.options[shipping_inpostparcels.options.length] = new Option(box_machine_name+','+box_machine_town+','+box_machine_street, box_machine_name);
-            shipping_inpostparcels.selectedIndex = shipping_inpostparcels.length-1;
+	if (is_value == 0)
+	{
+		shipping_inpostparcels.options[shipping_inpostparcels.options.length] = new Option(box_machine_name+','+box_machine_town+','+box_machine_street, box_machine_name);
+		shipping_inpostparcels.selectedIndex = shipping_inpostparcels.length-1;
         }
-    }
+}
 </script>
 
 <form name='adminForm' id="adminForm" method="POST">
@@ -56,28 +60,30 @@ AdminUIHelper::startAdminArea($this);
     <input type="hidden" name="parcel_id" value="<?php echo $this->inpostparcelsData['parcel_id']; ?>" />
     <input type="hidden" name="id" value="<?php echo $this->inpostparcelsData['id']; ?>" />
 
-
-
-
-<table class="adminlist" style="table-layout: fixed;">
+<table class="adminlist table table-striped" style="table-layout: fixed;">
 
     <?php if(in_array($this->parcel->api_source, array('PL'))): ?>
     <tr>
         <td width="150" align="right"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_COD_AMOUNT') ?>:</td>
-        <td><input name="parcel_cod_amount" value="<?php echo $this->inpostparcelsData['parcel_cod_amount']; ?>" <?php echo $this->disabledCodAmount; ?> <?php ?>/></td>
+	<td>
+		<input name="parcel_cod_amount" type="text" value="<?php echo $this->inpostparcelsData['parcel_cod_amount']; ?>" <?php echo $this->disabledCodAmount; ?> <?php ?>/>
+	</td>
     </tr>
     <?php endif; ?>
 
     <tr>
-        <td width="150" align="right" valign="top"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_DESCRIPTION') ?>:</td>
-        <td><textarea name="parcel_description" rows="10" cols="10" <?php echo $this->disabledDescription; ?>><?php echo $this->inpostparcelsData['parcel_description']; ?></textarea></td>
+	<td class="key" style="width:150px;">
+		<label for="parcel_description"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_DESCRIPTION') ?> *
+		</label>
+	</td>
+        <td><textarea name="parcel_description" rows="10" cols="10" <?php echo $this->disabledDescription; ?> required="required" class="required"><?php echo $this->inpostparcelsData['parcel_description']; ?></textarea></td>
     </tr>
 
     <?php if(in_array($this->parcel->api_source, array('PL'))): ?>
     <tr>
         <td align="right"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_INSURANCE_AMOUNT') ?>:</td>
         <td>
-            <select id="parcel_size" name="parcel_insurance_amount" <?php echo $this->disabledInsuranceAmount; ?>>
+            <select id="parcel_insurance_amount" name="parcel_insurance_amount" <?php echo $this->disabledInsuranceAmount; ?>>
                 <option value='' <?php if(@$this->inpostparcelsData['parcel_insurance_amount'] == ''){ echo "selected=selected";} ?>><?php echo $this->defaultInsuranceAmount; ?></option>
                 <?php foreach($this->parcelInsurancesAmount as $key => $parcelInsuranceAmount): ?>
                 <option value='<?php echo $key ?>' <?php if($this->inpostparcelsData['parcel_insurance_amount'] == $key){ echo "selected=selected";} ?>><?php echo $parcelInsuranceAmount;?></option>
@@ -88,19 +94,32 @@ AdminUIHelper::startAdminArea($this);
     <?php endif; ?>
 
     <tr>
-        <td align="right"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_RECEIVER_PHONE') ?>:</td>
-        <td><input name="parcel_receiver_phone" value="<?php echo $this->inpostparcelsData['parcel_receiver_phone']; ?>" <?php echo $this->disabledReceiverPhone; ?>/></td>
+	<td class="key">
+		<label for="parcel_receiver_phone"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_RECEIVER_PHONE') ?> *
+		</label>
+	</td>
+	<td>
+		<input id="parcel_receiver_phone" name="parcel_receiver_phone" type="text" value="<?php echo $this->inpostparcelsData['parcel_receiver_phone']; ?>" <?php echo $this->disabledReceiverPhone; ?> required="required" maxlength="9" class="required" />
+	</td>
     </tr>
 
     <tr>
-        <td align="right"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_RECEIVER_EMAIL') ?>:</td>
-        <td><input name="parcel_receiver_email" value="<?php echo $this->inpostparcelsData['parcel_receiver_email']; ?>" <?php echo $this->disabledReceiverEmail; ?>/></td>
+	<td class="key">
+		<label for="parcel_receiver_email"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_RECEIVER_EMAIL') ?> *
+		</label>
+	</td>
+	<td>
+		<input id="parcel_receiver_email" name="parcel_receiver_email" type="text" value="<?php echo $this->inpostparcelsData['parcel_receiver_email']; ?>" <?php echo $this->disabledReceiverEmail; ?> required="required" class="required" />
+	</td>
     </tr>
 
     <tr>
-        <td align="right"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SIZE') ?>:</td>
+	<td class="key">
+		<label for="parcel_size"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SIZE') ?> *
+		</label>
+	</td>
         <td>
-            <select id="parcel_size" name="parcel_size" <?php echo $this->disabledParcelSize; ?>>
+            <select id="parcel_size" name="parcel_size" <?php echo $this->disabledParcelSize; ?> required="required" class="required">
                 <option value='' <?php if($this->inpostparcelsData['parcel_size'] == ''){ echo "selected=selected";} ?>><?php echo $this->defaultParcelSize;?></option>
                 <option value='<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SIZE_A') ?>' <?php if($this->inpostparcelsData['parcel_size'] == JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SIZE_A')){ echo "selected=selected";} ?>><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SIZE_A') ?></option>
                 <option value='<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SIZE_B') ?>' <?php if($this->inpostparcelsData['parcel_size'] == JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SIZE_B')){ echo "selected=selected";} ?>><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SIZE_B') ?></option>
@@ -111,14 +130,20 @@ AdminUIHelper::startAdminArea($this);
 
     <?php if(@$this->inpostparcelsData['parcel_status'] != '0'): ?>
     <tr>
-        <td align="right"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_STATUS') ?>:</td>
-        <td><input name="parcel_status" value="<?php echo $this->inpostparcelsData['parcel_status']; ?>" <?php echo $this->disabledParcelStatus; ?>/></td>
+	<td class="key">
+		<label for="parcel_status"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_STATUS') ?></label>
+	</td>
+	<td>
+		<input id="parcel_status" name="parcel_status" type="text" value="<?php echo $this->inpostparcelsData['parcel_status']; ?>" <?php echo $this->disabledParcelStatus; ?>/>
+	</td>
     </tr>
     <?php endif; ?>
 
     <?php if(in_array($this->parcel->api_source, array('PL'))): ?>
     <tr>
-        <td align="right"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SOURCE_MACHINE') ?>:</td>
+	<td class="key">
+		<label for="shipping_inpostparcels_source"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SOURCE_MACHINE') ?></label>
+		</td>
         <td>
             <select id="shipping_inpostparcels_source" name="parcel_source_machine_id" <?php echo $this->disabledSourceMachine; ?>>
                 <option value='' <?php if(@$this->inpostparcelsData['parcel_source_machine_id'] == ''){ echo "selected=selected";} ?>><?php echo $this->defaultSourceMachine;?></option>
@@ -136,12 +161,17 @@ AdminUIHelper::startAdminArea($this);
     <?php endif; ?>
 
     <tr>
-        <td align="right"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_TMP_ID') ?>:</td>
-        <td><input name="parcel_tmp_id" value="<?php echo $this->inpostparcelsData['parcel_tmp_id']; ?>" <?php echo $this->disabledTmpId; ?>/></td>
+	<td class="key">
+		<label for="parcel_tmp_id"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_TMP_ID') ?> *
+		</label>
+	</td>
+        <td><input id="parcel_tmp_id" name="parcel_tmp_id" type="text" value="<?php echo $this->inpostparcelsData['parcel_tmp_id']; ?>" <?php echo $this->disabledTmpId; ?> required="required" class="required"/></td>
     </tr>
 
     <tr>
-        <td align="right"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_TARGET_MACHINE') ?>:</td>
+	<td class="key">
+		<label for="shipping_inpostparcels"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_TARGET_MACHINE') ?> *</label>
+	</td>
         <td>
             <select id="shipping_inpostparcels" name="parcel_target_machine_id" <?php echo $this->disabledTargetMachine; ?>>
                 <option value='' <?php if(@$this->inpostparcelsData['parcel_target_machine_id'] == ''){ echo "selected=selected";} ?>><?php echo $this->defaultTargetMachine;?></option>
