@@ -38,7 +38,6 @@ if (!class_exists ('vmPlugin')) {
 }
 
 require_once (JPATH_VMINPOSTPARCELSPLUGIN . DS . 'inpostparcels' . DS . 'helpers' . DS . 'inpostparcels_helper.php');
-require(JPATH_VM_ADMINISTRATOR . DS . 'helpers' . DS . 'parameterparser.php');
 
 /**
  * Orders Controller

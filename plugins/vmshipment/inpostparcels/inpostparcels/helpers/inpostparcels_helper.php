@@ -42,6 +42,10 @@ class inpostparcels_helper
 
 		$ch = curl_init();
 
+		// Switch cURL to not worry about SSL certificate checking.
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+
 		switch($params['methodType'])
 		{
 			case 'GET':
