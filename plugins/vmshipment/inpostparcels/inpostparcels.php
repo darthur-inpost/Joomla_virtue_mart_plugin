@@ -277,8 +277,9 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	///
 	// displayListFE
 	//
-	public function displayListFE (VirtueMartCart $cart, $selected = 0, &$htmlIn)
+	public function __displayListFE (VirtueMartCart $cart, $selected = 0, &$htmlIn)
 	{
+		error_log("In here but we should not be.");
 		if ($this->getPluginMethods ($cart->vendorId) === 0)
 		{
 			if (empty($this->_name))
@@ -302,12 +303,15 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 			if ($this->checkConditions ($cart, $method, $cart->pricesUnformatted))
 			{
 				//$methodSalesPrice = $this->calculateSalesPrice ($cart, $method, $cart->pricesUnformatted);
-				$methodSalesPrice = $this->setCartPrices ($cart, $cart->pricesUnformatted,$method);
+				$prices = $cart->cartPrices;
+				$methodSalesPrice = $this->setCartPrices ($cart, $prices,$method);
+				error_log("methodSalesPrice " . json_encode($methodSalesPrice));
 				$method->$method_name = $this->renderPluginName ($method);
 				//$html [] = $this->getPluginHtml ($cart, $method, $selected, $methodSalesPrice);
 				$html [] = $this->getPluginHtml ($method, $selected, $methodSalesPrice);
 			}
 		}
+		error_log("END In here but we should not be.");
 		if (!empty($html))
 		{
 			$htmlIn[] = $html;
@@ -320,14 +324,21 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	///
 	// getPluginHtml
 	//
-	//protected function getPluginHtml (VirtueMartCart $cart, $plugin, $selectedPlugin, $pluginSalesPrice) {
+	// @brief Build the display for the InPost method.
+	// @param mixed The plugin
+	// @param mixed The current plugin
+	// @param mixed The price information
+	//
 	protected function getPluginHtml ($plugin, $selectedPlugin, $pluginSalesPrice)
 	{
 		$pluginmethod_id = $this->_idName;
-		$pluginName = $this->_psType . '_name';
-		if ($selectedPlugin == $plugin->$pluginmethod_id) {
+		$pluginName      = $this->_psType . '_name';
+		if ($selectedPlugin == $plugin->$pluginmethod_id)
+		{
 			$checked = 'checked="checked"';
-		} else {
+		}
+		else
+		{
 			$checked = '';
 		}
 
@@ -342,21 +353,22 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 			$costDisplay = $currency->priceDisplay ($pluginSalesPrice);
 			$costDisplay = '<span class="' . $this->_type . '_cost"> (' . JText::_ ('COM_VIRTUEMART_PLUGIN_COST_DISPLAY') . $costDisplay . ")</span>";
 		}
-		foreach ($this->methods as $this->_currentMethod) {
-		// Get the Cart information
-		$cart = VirtueMartCart::getCart();
-		$cart->prepareCartData();
+		foreach ($this->methods as $this->_currentMethod)
+		{
+			// Get the Cart information
+			$cart = VirtueMartCart::getCart();
+			$cart->prepareCartData();
 
-		$content = $this->renderByLayout ('edit_shippment',
-			$this->prepareData(
-				$cart,
-				$this->methods[0],
-				$this->_psType . '_id_' . $plugin->$pluginmethod_id),
-			'inpostparcels',
-			'vmshipment');
+			$content = $this->renderByLayout ('edit_shippment',
+				$this->prepareData(
+					$cart,
+					$this->methods[0],
+					$this->_psType . '_id_' . $plugin->$pluginmethod_id),
+				'inpostparcels',
+				'vmshipment');
 
 		$html = '<input type="radio" name="' . $pluginmethod_id . '" id="' . $this->_psType . '_id_' . $plugin->$pluginmethod_id . '"   value="' . $plugin->$pluginmethod_id . '" ' . $checked . ">\n"
-		. '<label for="' . $this->_psType . '_id_' . $plugin->$pluginmethod_id . '">' . '<span class="' . $this->_type . '">' . $plugin->$pluginName . "</span></label>
+		. '<label for="' . $this->_psType . '_id_' . $plugin->$pluginmethod_id . '">' . '<span class="' . $this->_type . '">' . $plugin->$pluginName . $costDisplay . "</span></label>
 		$content
 		\n";
 		}
@@ -545,7 +557,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 		{
 			return $result[$hash];
 		}
-		$orderWeight = $this->getOrderWeight ($cart, $method->WEIGHT_UNIT);
+		$orderWeight = $this->getOrderWeight ($cart, $method->weight_unit);
 
 		$countries = array();
 		if (!empty($method->countries)) {
@@ -625,7 +637,18 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	function getCosts (VirtueMartCart $cart, $method, $cart_prices)
 	{
-		return $method->PRICE;
+		//error_log("In inpostparcels.php getCosts");
+
+		//return $method->PRICE;
+		if ($method->free_shipment && $cart_prices['salesPrice'] >= $method->free_shipment)
+		{
+			return 0.0;
+		}
+		else
+		{
+			return $method->shipment_cost + $method->package_fee;
+		}
+
 	}
 
 	/**

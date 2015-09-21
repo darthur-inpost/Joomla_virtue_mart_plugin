@@ -231,17 +231,25 @@ function user_function(value)
                 //alert('all machines');
                 var machines = {
                     '' : '<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SELECT_MACHINE..');?>',
+		<?php if (isset($this->parcelSourceMachinesId) &&
+			$this->parcelSourceMachinesId != null &&
+			$this->parcelSourceMachinesId != "null") : ?>
                 <?php foreach($this->parcelSourceAllMachinesId as $key => $parcelSourceAllMachineId): ?>
                     '<?php echo $key; ?>' : '<?php echo addslashes($parcelSourceAllMachineId); ?>',
                     <?php endforeach; ?>
+		<?php endif; ?>
                 };
             }else{
                 //alert('criteria machines');
                 var machines = {
                     '' : '<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SELECT_MACHINE..');?>',
-                <?php foreach($this->parcelSourceMachinesId as $key => $parcelSourceMachineId): ?>
+		<?php if (isset($this->parcelSourceMachinesId) &&
+			$this->parcelSourceMachinesId != null &&
+			$this->parcelSourceMachinesId != "null") : ?>
+			<?php foreach($this->parcelSourceMachinesId as $key => $parcelSourceMachineId): ?>
                     '<?php echo $key; ?>' : '<?php echo addslashes($parcelSourceMachineId); ?>',
-                    <?php endforeach; ?>
+			<?php endforeach; ?>
+		<?php endif; ?>
                 };
             }
 
