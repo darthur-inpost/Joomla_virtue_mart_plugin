@@ -8,18 +8,16 @@
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
     <version>2.0.21</version>
     <description>InPost Parcel Lockers 24/7</description>
-
-    <files>
-        <filename plugin="inpostparcels">inpostparcels.php</filename>
-        <folder>inpostparcels</folder>
-    </files>
-
     <languages>
         <language tag="en-GB">en-GB/en-GB.com_virtuemart_inpostparcels.ini</language>
         <language tag="en-GB">en-GB/en-GB.com_virtuemart_inpostparcels.sys.ini</language>
         <language tag="pl-PL">pl-PL/pl-PL.com_virtuemart_inpostparcels.ini</language>
         <language tag="pl-PL">pl-PL/pl-PL.com_virtuemart_inpostparcels.sys.ini</language>
     </languages>
+    <files>
+        <filename plugin="inpostparcels">inpostparcels.php</filename>
+        <folder>inpostparcels</folder>
+    </files>
 
     <vmconfig>
         <fields name="params">
@@ -40,7 +38,7 @@
 		       label="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_API_URL" description="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_INFO_API_URL"/>
 	        <field name="API_KEY" type="text" size="100" default=""
 		       label="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_API_KEY" description="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_INFO_API_KEY"/>
-	       	<field name="WEIGHT_UNIT" type="vmweightunit" size="10" default=""
+	       	<field name="weight_unit" type="vmweightunit" size="10" default=""
 		       label="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_WEIGHT_UNIT" description="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_INFO_WEIGHT_UNIT"/>
 	        <field name="MAX_WEIGHT" type="text" size="5" default=""
 		       label="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_MAX_WEIGHT" description="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_INFO_MAX_WEIGHT"/>
@@ -50,10 +48,34 @@
 		       label="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_MAX_DIMENSION_B" description="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_INFO_MAX_DIMENSION_B"/>
 	        <field name="MAX_DIMENSION_C" type="text" size="10" default=""
 		       label="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_MAX_DIMENSION_C" description="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_INFO_MAX_DIMENSION_C"/>
-	        <field name="ALLOWED_COUNTRY" type="vmcountries" multiple="true" scope="com_virtuemart" default=""
+	        <field name="countries" type="vmcountries" multiple="true" scope="com_virtuemart" default=""
 		       label="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_ALLOWED_COUNTRY" description="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_INFO_ALLOWED_COUNTRY"/>
 	        <field name="SHOP_CITIES" type="text" size="10" default=""
 		       label="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_SHOP_CITIES" description="COM_VIRTUEMART_INPOSTPARCELS_CONFIG_INFO_SHOP_CITIES"/>
+	        <field name="zip_start" type="text" size="10" default=""
+		       label="VMSHIPMENT_WEIGHT_COUNTRIES_ZIP_START"
+                       description="VMSHIPMENT_WEIGHT_COUNTRIES_ZIP_START_DESC"/>
+	        <field name="zip_stop" type="text" size="10" default=""
+		       label="VMSHIPMENT_WEIGHT_COUNTRIES_ZIP_STOP"
+                       description="VMSHIPMENT_WEIGHT_COUNTRIES_ZIP_STOP_DESC"/>
+                <field name="weight_start" type="text" size="10" default=""
+                       label="VMSHIPMENT_WEIGHT_COUNTRIES_WEIGHT_START"
+                       description="VMSHIPMENT_WEIGHT_COUNTRIES_WEIGHT_START_DESC"/>
+                <field name="weight_stop" type="text" size="10" default=""
+                       label="VMSHIPMENT_WEIGHT_COUNTRIES_WEIGHT_STOP"
+                       description="VMSHIPMENT_WEIGHT_COUNTRIES_WEIGHT_STOP_DESC"/>
+                <field name="nbproducts_start" type="text" size="10" default=""
+                       label="VMSHIPMENT_WEIGHT_COUNTRIES_NBPRODUCTS_START"
+                       description="VMSHIPMENT_WEIGHT_COUNTRIES_NBPRODUCTS_START_DESC"/>
+                <field name="nbproducts_stop" type="text" size="10" default=""
+                       label="VMSHIPMENT_WEIGHT_COUNTRIES_NBPRODUCTS_STOP"
+                       description="VMSHIPMENT_WEIGHT_COUNTRIES_NBPRODUCTS_STOP_DESC"/>
+                <field name="orderamount_start" type="text" size="10" default=""
+                       label="VMSHIPMENT_WEIGHT_COUNTRIES_ORDERAMOUNT_START"
+                       description="VMSHIPMENT_WEIGHT_COUNTRIES_ORDERAMOUNT_START_DESC"/>
+                <field name="orderamount_stop" type="text" size="10" default=""
+                       label="VMSHIPMENT_WEIGHT_COUNTRIES_ORDERAMOUNT_STOP"
+                       description="VMSHIPMENT_WEIGHT_COUNTRIES_ORDERAMOUNT_STOP_DESC"/>
 	    </fieldset>
             <fieldset name="fee">
                 <field name="shipment_cost" type="text" label="VMSHIPMENT_WEIGHT_COUNTRIES_COST"

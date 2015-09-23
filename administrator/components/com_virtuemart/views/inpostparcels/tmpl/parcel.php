@@ -173,7 +173,7 @@ function user_function(value)
 		<label for="shipping_inpostparcels"><?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_TARGET_MACHINE') ?> *</label>
 	</td>
         <td>
-            <select id="shipping_inpostparcels" name="parcel_target_machine_id" <?php echo $this->disabledTargetMachine; ?>>
+            <select class="chzn-done" id="shipping_inpostparcels" name="parcel_target_machine_id" <?php echo $this->disabledTargetMachine; ?>>
                 <option value='' <?php if(@$this->inpostparcelsData['parcel_target_machine_id'] == ''){ echo "selected=selected";} ?>><?php echo $this->defaultTargetMachine;?></option>
                 <?php foreach($this->parcelTargetMachinesId as $key => $parcelTargetMachine): ?>
                 <option value='<?php echo $key ?>' <?php if($this->inpostparcelsData['parcel_target_machine_id'] == $key){ echo "selected=selected";} ?>><?php echo $parcelTargetMachine;?></option>
@@ -200,7 +200,7 @@ function user_function(value)
 	    {
                 //alert('all machines');
                 var machines = {
-                    '' : '<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SELECT_MACHINE..');?>',
+                    '' : '<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SELECT_MACHINE');?>',
                 <?php foreach($this->parcelTargetAllMachinesId as $key => $parcelTargetAllMachineId): ?>
                     '<?php echo $key ?>' : '<?php echo addslashes($parcelTargetAllMachineId) ?>',
                     <?php endforeach; ?>
@@ -210,7 +210,7 @@ function user_function(value)
 	    {
                 //alert('criteria machines');
                 var machines = {
-                    '' : '<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SELECT_MACHINE..');?>',
+                    '' : '<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SELECT_MACHINE');?>',
                 <?php foreach($this->parcelTargetMachinesId as $key => $parcelTargetMachineId): ?>
                     '<?php echo $key ?>' : '<?php echo addslashes($parcelTargetMachineId) ?>',
                     <?php endforeach; ?>
@@ -230,7 +230,7 @@ function user_function(value)
             if(machines_list_type == true){
                 //alert('all machines');
                 var machines = {
-                    '' : '<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SELECT_MACHINE..');?>',
+                    '' : '<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SELECT_MACHINE');?>',
 		<?php if (isset($this->parcelSourceMachinesId) &&
 			$this->parcelSourceMachinesId != null &&
 			$this->parcelSourceMachinesId != "null") : ?>
@@ -242,7 +242,7 @@ function user_function(value)
             }else{
                 //alert('criteria machines');
                 var machines = {
-                    '' : '<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SELECT_MACHINE..');?>',
+                    '' : '<?php echo JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SELECT_MACHINE');?>',
 		<?php if (isset($this->parcelSourceMachinesId) &&
 			$this->parcelSourceMachinesId != null &&
 			$this->parcelSourceMachinesId != "null") : ?>

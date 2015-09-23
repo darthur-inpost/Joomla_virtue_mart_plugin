@@ -364,25 +364,32 @@ class VirtuemartControllerInpostparcels extends VmController
 	///
 	// update
 	//
+	// @brief Create or update a parcel. Check that the data is OK before
+	// doing this.
+	//
 	public function update()
 	{
 		$mainframe = Jfactory::getApplication();
 		//$model = VmModel::getModel();
 		$id = JRequest::getVar('id');
-		try {
-            $postData = JRequest::get();
+		try
+		{
+			$error    = false;
 
-            $db = JFactory::getDBO();
-            $q = "SELECT * FROM #__virtuemart_shipment_plg_inpostparcels WHERE id='".(int)$id."'";
-            $db->setQuery($q);
-            $parcel = $db->loadObject();
+			$postData = JRequest::get();
 
-            $parcelTargetMachineDetailDb = json_decode($parcel->parcel_target_machine_detail);
-            $parcelDetailDb = json_decode($parcel->parcel_detail);
+			$db = JFactory::getDBO();
+			$q = "SELECT * FROM #__virtuemart_shipment_plg_inpostparcels WHERE id='".(int)$id."'";
+			$db->setQuery($q);
+			$parcel = $db->loadObject();
 
-            if($parcel->parcel_id != '0'){
-                // update Inpost parcel
-                $params = array(
+			$parcelTargetMachineDetailDb = json_decode($parcel->parcel_target_machine_detail);
+			$parcelDetailDb = json_decode($parcel->parcel_detail);
+
+			if($parcel->parcel_id != '0')
+			{
+				// update Inpost parcel
+				$params = array(
                     'url' => $this->config['API_URL'].'parcels',
                     'token' => $this->config['API_KEY'],
                     'methodType' => 'PUT',
@@ -394,74 +401,104 @@ class VirtuemartControllerInpostparcels extends VmController
                         //'target_machine' => !isset($postData['parcel_target_machine_id']) || $postData['parcel_target_machine_id'] == $parcel->parcel_target_machine_id?null:$postData['parcel_target_machine_id']
                     )
                 );
-            }else{
-                // create Inpost parcel e.g.
-                $params = array(
-                    'url' => $this->config['API_URL'].'parcels',
-                    'token' => $this->config['API_KEY'],
-                    'methodType' => 'POST',
-                    'params' => array(
-                        'description' => @$postData['parcel_description'],
-                        'description2' => 'virtuemart-2.x-'.inpostparcels_helper::getVersion(),
-                        'receiver' => array(
-                            'phone' => @$postData['parcel_receiver_phone'],
-                            'email' => @$postData['parcel_receiver_email']
-                        ),
-                        'size' => @$postData['parcel_size'],
-                        'tmp_id' => @$postData['parcel_tmp_id'],
-                        'target_machine' => @$postData['parcel_target_machine_id']
-                    )
-                );
+			}
+			else
+			{
+				// Check if the data is good.
+				if (strlen(@$postData['parcel_receiver_phone']) != 9 ||
+				@$postData['parcel_target_machine_id'] == "")
+				{
+					$error = true;
+				}
 
-                switch($parcel->api_source){
-                    case 'PL':
-                        $insurance_amount = $_SESSION['inpostparcels']['parcelInsurancesAmount'];
-                        $params['params']['cod_amount'] = @$postData['parcel_cod_amount'];
-                        if(@$postData['parcel_insurance_amount'] != ''){
-                            $params['params']['insurance_amount'] = @$postData['parcel_insurance_amount'];
-                        }
-                        $params['params']['source_machine'] = @$postData['parcel_source_machine_id'];
-                        break;
-                }
-            }
+				// create Inpost parcel e.g.
+				$params = array(
+				'url' => $this->config['API_URL'].'parcels',
+				'token' => $this->config['API_KEY'],
+				'methodType' => 'POST',
+				'params' => array(
+					'description' => @$postData['parcel_description'],
+					'description2' => 'virtuemart-2.x-'.inpostparcels_helper::getVersion(),
+					'receiver' => array(
+						'phone' => @$postData['parcel_receiver_phone'],
+						'email' => @$postData['parcel_receiver_email']
+				),
+				'size' => @$postData['parcel_size'],
+				'tmp_id' => @$postData['parcel_tmp_id'],
+				'target_machine' => @$postData['parcel_target_machine_id']
+				)
+			);
 
-            $parcelApi = inpostparcels_helper::connectInpostparcels($params);
+			switch($parcel->api_source)
+			{
+				case 'PL':
+				$insurance_amount = $_SESSION['inpostparcels']['parcelInsurancesAmount'];
+				$params['params']['cod_amount'] = @$postData['parcel_cod_amount'];
+				if(@$postData['parcel_insurance_amount'] != ''){
+				$params['params']['insurance_amount'] = @$postData['parcel_insurance_amount'];
+				}
+				$params['params']['source_machine'] = @$postData['parcel_source_machine_id'];
+				break;
+				}
+			}
 
-            if(@$parcelApi['info']['http_code'] != '204' && @$parcelApi['info']['http_code'] != '201'){
-                if(!empty($parcelApi['result'])){
-                    foreach(@$parcelApi['result'] as $key => $error){
-                        if(is_array($error)){
-                            foreach($error as $subKey => $subError){
-                                vmError('Parcel '.$key.' '.$postData['parcel_id'].' '.$subError);
-                            }
-                        }else{
-                            vmError('Parcel '.$key.' '.$error);
-                        }
-                    }
-                }
-                $mainframe->redirect('index.php?option=com_virtuemart&view=inpostparcels&task=edit&id='.$id);
-            }else{
-                if($parcel->parcel_id != '0'){
-                    $parcelDetail = $parcelDetailDb;
-                    $parcelDetail->description = $postData['parcel_description'];
-                    $parcelDetail->size = $postData['parcel_size'];
-                    $parcelDetail->status = $postData['parcel_status'];
+			if ($error)
+			{
+				@$parcelApi['info']['http_code'] = 999;
+				vmError('Parcel '.$key.' '.$postData['parcel_id'].' Data missing');
+			}
+			else
+			{
+				$parcelApi = inpostparcels_helper::connectInpostparcels($params);
+			}
 
-                    $fields = array(
-                        'parcel_status' => isset($postData['parcel_status'])?$postData['parcel_status']:$parcel->parcel_status,
-                        'parcel_detail' => json_encode($parcelDetail),
-                        'variables' => json_encode(array())
-                    );
-                    $db = JFactory::getDBO();
-                    $q = "UPDATE #__virtuemart_shipment_plg_inpostparcels SET
-                        parcel_status='".$fields['parcel_status']."',
-                        parcel_detail='".$fields['parcel_detail']."',
-                        sticker_creation_date='0000-00-00 00:00:00',
-                        variables='".$fields['variables']."'
-                        WHERE id ='".(int)$id."'";
-                    $db->setQuery($q);
-                    $db->query();
-                }else{
+		if (@$parcelApi['info']['http_code'] != '204' && @$parcelApi['info']['http_code'] != '201')
+		{
+			if (!empty($parcelApi['result']))
+			{
+				foreach(@$parcelApi['result'] as $key => $error)
+				{
+					if(is_array($error))
+					{
+						foreach($error as $subKey => $subError)
+						{
+							vmError('Parcel '.$key.' '.$postData['parcel_id'].' '.$subError);
+						}
+					}
+					else
+					{
+						vmError('Parcel '.$key.' '.$error);
+					}
+				}
+			}
+			$mainframe->redirect('index.php?option=com_virtuemart&view=inpostparcels&task=edit&id='.$id);
+		}
+		else
+		{
+			if($parcel->parcel_id != '0')
+			{
+				$parcelDetail = $parcelDetailDb;
+				$parcelDetail->description = $postData['parcel_description'];
+				$parcelDetail->size = $postData['parcel_size'];
+				$parcelDetail->status = $postData['parcel_status'];
+
+				$fields = array(
+				'parcel_status' => isset($postData['parcel_status'])?$postData['parcel_status']:$parcel->parcel_status,
+				'parcel_detail' => json_encode($parcelDetail),
+				'variables' => json_encode(array())
+				);
+				$db = JFactory::getDBO();
+				$q = "UPDATE #__virtuemart_shipment_plg_inpostparcels SET
+				parcel_status='".$fields['parcel_status']."',
+				parcel_detail='".$fields['parcel_detail']."',
+				sticker_creation_date='0000-00-00 00:00:00',
+				variables='".$fields['variables']."'
+				WHERE id ='".(int)$id."'";
+				$db->setQuery($q);
+				$db->query();
+			}
+			else
+			{
 //                    $parcelApi = inpostparcels_helper::connectInpostparcels(
 //                        array(
 //                            'url' => $parcelApi['info']['redirect_url'],
@@ -506,16 +543,18 @@ class VirtuemartControllerInpostparcels extends VmController
                         sticker_creation_date='0000-00-00 00:00:00',
                         variables='".$fields['variables']."'
                         WHERE id ='".(int)$id."'";
-                    $db->setQuery($q);
-                    $db->query();
-                }
-            }
-            vmInfo(JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_MSG_PARCEL_MODIFIED'));
-        } catch (Exception $e) {
-            vmError($e->getMessage());
-        }
-        $mainframe->redirect('index.php?option=com_virtuemart&view=inpostparcels');
-    }
+					$db->setQuery($q);
+					$db->query();
+				}
+			}
+			vmInfo(JText::_ ('COM_VIRTUEMART_INPOSTPARCELS_MSG_PARCEL_MODIFIED'));
+		}
+		catch (Exception $e)
+		{
+			vmError($e->getMessage());
+		}
+		$mainframe->redirect('index.php?option=com_virtuemart&view=inpostparcels');
+	}
 
 
 }

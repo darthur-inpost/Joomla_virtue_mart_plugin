@@ -25,6 +25,8 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	function __construct (& $subject, $config)
 	{
+		//error_log("__construct function");
+
 		//if (self::$_this)
 		//   return self::$_this;
 		parent::__construct ($subject, $config);
@@ -54,6 +56,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 * @author Valérie Isaksen
 	 */
 	public function getVmPluginCreateTableSQL () {
+		//error_log("getVmPluginCreateTableSQL function");
 
 		return $this->createTableSQL ('Shipment Weight Countries Table');
 	}
@@ -63,6 +66,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	function getTableSQLFields ()
 	{
+		//error_log("getTableSQLFields function");
 		$SQLfields = array(
 			'id'                           => 'int(1) UNSIGNED NOT NULL AUTO_INCREMENT',
 			'virtuemart_order_id'          => 'int(11) UNSIGNED',
@@ -99,6 +103,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	public function plgVmOnShowOrderFEShipment ($virtuemart_order_id, $virtuemart_shipmentmethod_id, &$shipment_name) {
 
+		//error_log("plgVmOnShowOrderFEShipment function");
 		$this->onShowOrderFE ($virtuemart_order_id, $virtuemart_shipmentmethod_id, $shipment_name);
 	}
 
@@ -114,6 +119,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	function plgVmConfirmedOrder (VirtueMartCart $cart, $order)
 	{
+		//error_log("plgVmConfirmedOrder function");
 		if (!($method = $this->getVmPluginMethod ($order['details']['BT']->virtuemart_shipmentmethod_id)))
 		{
 			return NULL; // Another method was selected, do nothing
@@ -123,17 +129,26 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 			return FALSE;
 		}
 
+		// The following DOES NOT work if the user simply clicks on
+		// the Confirm Order button without having clicked on the
+		// Save button first. I leave it here with this message as
+		// a warning for future coding.
+		// Clearly VirtueMart may fix this in the future.
+		//$postData = JRequest::get();
+
 		$order_id = $order['details']['BT']->virtuemart_order_id;
 
 		//error_log("** order_id = " . $order_id);
 		//error_log("** session = " . json_encode($_SESSION));
 		//error_log("_POST = " . json_encode($_POST));
+		//error_log("$ method = " . json_encode($method));
+		//error_log("$ order = " . json_encode($order));
 
 		// Set the mobile phone number
 		$phone = "";
-		if (isset($_SESSION['inpostparcels']['receiver_phone']))
+		if (isset($_SESSION['inpostparcels']['user_phone']))
 		{
-			$phone = $_SESSION['inpostparcels']['receiver_phone'];
+			$phone = $_SESSION['inpostparcels']['user_phone'];
 		}
 
 		if (isset($_POST['receiver_phone']) &&
@@ -208,7 +223,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 		$values['tax_id']               = $method->tax_id;
 		$this->storePSPluginInternalData ($values);
 
-		unset($_SESSION['inpostparcels']);
+		//unset($_SESSION['inpostparcels']);
 		//unset($cart->ST);
 		return TRUE;
 	}
@@ -226,6 +241,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 * @author Valerie Isaksen
 	 */
 	public function plgVmOnShowOrderBEShipment ($virtuemart_order_id, $virtuemart_shipmentmethod_id) {
+		//error_log("plgVmOnShowOrderBEShipment function");
 		if (!($this->selectedThisByMethodId ($virtuemart_shipmentmethod_id))) {
 			return NULL;
 		}
@@ -238,6 +254,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 * @return string
 	 */
 	function getOrderShipmentHtml ($virtuemart_order_id) {
+		//error_log("getOrderShipmentHtml function");
 		$db = JFactory::getDBO ();
 		$q = 'SELECT * FROM `' . $this->_tablename . '` '
 			. 'WHERE `virtuemart_order_id` = ' . $virtuemart_order_id;
@@ -279,7 +296,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	//
 	public function __displayListFE (VirtueMartCart $cart, $selected = 0, &$htmlIn)
 	{
-		error_log("In here but we should not be.");
+		//error_log("In here but we should not be.");
 		if ($this->getPluginMethods ($cart->vendorId) === 0)
 		{
 			if (empty($this->_name))
@@ -305,13 +322,13 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 				//$methodSalesPrice = $this->calculateSalesPrice ($cart, $method, $cart->pricesUnformatted);
 				$prices = $cart->cartPrices;
 				$methodSalesPrice = $this->setCartPrices ($cart, $prices,$method);
-				error_log("methodSalesPrice " . json_encode($methodSalesPrice));
+				//error_log("methodSalesPrice " . json_encode($methodSalesPrice));
 				$method->$method_name = $this->renderPluginName ($method);
 				//$html [] = $this->getPluginHtml ($cart, $method, $selected, $methodSalesPrice);
 				$html [] = $this->getPluginHtml ($method, $selected, $methodSalesPrice);
 			}
 		}
-		error_log("END In here but we should not be.");
+		//error_log("END In here but we should not be.");
 		if (!empty($html))
 		{
 			$htmlIn[] = $html;
@@ -331,6 +348,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	//
 	protected function getPluginHtml ($plugin, $selectedPlugin, $pluginSalesPrice)
 	{
+		//error_log("getPluginHtml function");
 		$pluginmethod_id = $this->_idName;
 		$pluginName      = $this->_psType . '_name';
 		if ($selectedPlugin == $plugin->$pluginmethod_id)
@@ -385,6 +403,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	//
 	protected function prepareData(VirtueMartCart $cart, $method, $radio_id)
 	{
+		//error_log("prepareData function");
 		//error_log("Cart = " . json_encode($cart));
 		//error_log("Method = " . json_encode($method));
 		//error_log("Radio_id = " . json_encode($radio_id));
@@ -402,6 +421,10 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 		if (isset($_POST['receiver_phone']) &&
 			$_POST['receiver_phone'] != "")
 		{
+			//error_log("Setting the user_phone to be something.");
+			//error_log("Setting the user_phone to ". 
+				//$_POST['receiver_phone']);
+
 			$inpostparcels['user_phone'] = $_POST['receiver_phone'];
 		}
 		else
@@ -415,10 +438,12 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 		if(isset($inpostparcels['user_phone']) &&
 			!preg_match('/^[1-9]{1}\d{8}$/', $inpostparcels['user_phone']))
 		{
+			//error_log("Setting USER_PHONE to be null.");
 			$inpostparcels['user_phone'] = null;
 		}
 		elseif(!isset($inpostparcels['user_phone']))
 		{
+			//error_log("elseif Setting USER_PHONE to be null.");
 			$inpostparcels['user_phone'] = null;
 		}
 
@@ -470,12 +495,20 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
                         'city' => @$machine->address->city
                     )
                 );
-                if($machine->address->post_code == $address['zip']){
-                    $machines[$key] = $machine;
-                    continue;
-                }elseif($machine->address->city == $address['city']){
-                    $machines[$key] = $machine;
-                }
+				//--------------------------------------------
+				// We must use a binary safe search.
+				//--------------------------------------------
+				if (stripos($machine->address->post_code, 
+					$address['zip']) !== false)
+				{
+					$machines[$key] = $machine;
+					continue;
+				}
+				elseif (stripos($machine->address->city,
+					$address['city']) !== false)
+				{
+					$machines[$key] = $machine;
+				}
 
 				$inpostparcels['parcelTargetAllMachinesId'] = $parcelTargetAllMachinesId;
 				$inpostparcels['parcelTargetAllMachinesDetail'] = $parcelTargetAllMachinesDetail;
@@ -525,6 +558,9 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
      */
 	protected function checkConditions ($cart, $method, $cart_prices)
 	{
+		//error_log("**** checkConditions function ****");
+		//error_log("_POST = " . json_encode($_POST));
+		//error_log("after");
 		// check countries
 //        $address = (($cart->ST == 0) ? $cart->BT : $cart->ST);
 //        if(!in_array($address['virtuemart_country_id'], $method->ALLOWED_COUNTRY)){
@@ -624,6 +660,60 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 			return false;
 		}
 
+		// Check that the phone number entered is the correct length
+		// or not.
+		//************************************************************
+		// NB The way that VirtueMart works, if a shipping method
+		// fails the validation then it is REMOVED from the list of
+		// available shipping methods. We do NOT really want to do
+		// that for a wrong mobile number.
+		//************************************************************
+		if (isset($_POST['receiver_phone']) &&
+			$_POST['receiver_phone'] != "" &&
+			strlen($_POST['receiver_phone']) != 9)
+		{
+			vmError('shipmentmethod '.$method->shipment_name.
+				' mobile phone, Reason: bad length.');
+			//************
+			// Please see comment above.
+			//************
+			//return false;
+		}
+
+		// The receiver's phone number is in the $_POST data
+		if (isset($_POST['receiver_phone']) &&
+			$_POST['receiver_phone'] != "" &&
+			(!isset($_SESSION['inpostparcels']['user_phone']) ||
+	       		$_SESSION['inpostparcels']['user_phone'] == "") )
+		{
+			$_SESSION['inpostparcels']['user_phone'] = $_POST['receiver_phone'];
+		}
+
+		//error_log($_SESSION['inpostparcels']['user_phone']);
+
+		// The selected Locker is in the $_POST data
+		if (isset($_POST['shipping_inpostparcels']) &&
+			$_POST['shipping_inpostparcels'] != "" &&
+			(!isset($_SESSION['inpostparcels']['parcel_target_machine_id']) ||
+	       		$_SESSION['inpostparcels']['parcel_target_machine_id'] == "") )
+		{
+			$_SESSION['inpostparcels']['parcel_target_machine_id'] = $_POST['shipping_inpostparcels'];
+		}
+
+		// Because of the emptying of the _POST data we must put back
+		// the data so that it can be used later.
+		if (!isset($_POST['receiver_phone']) &&
+		  isset($_SESSION['inpostparcels']['user_phone']))
+		{
+			$_POST['receiver_phone'] = $_SESSION['inpostparcels']['user_phone'];
+		}
+		if (!isset($_POST['shipping_inpostparcels']) &&
+		  isset($_SESSION['inpostparcels']['parcel_target_machine_id']))
+		{
+			$_POST['shipping_inpostparcels'] = $_SESSION['inpostparcels']['parcel_target_machine_id'];
+		}
+
+		//error_log($_SESSION['inpostparcels']['parcel_target_machine_id']);
 		$_SESSION['inpostparcels']['parcel_size'] = $calculateDimension['parcelSize'];
 
 		return true;
@@ -637,6 +727,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	function getCosts (VirtueMartCart $cart, $method, $cart_prices)
 	{
+		//error_log("getCosts function");
 		//error_log("In inpostparcels.php getCosts");
 
 		//return $method->PRICE;
@@ -661,6 +752,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	function plgVmOnStoreInstallShipmentPluginTable ($jplugin_id) {
 
+		//error_log("plgVmOnStoreInstallShipmentPluginTable function");
         $db = JFactory::getDBO ();
         $db->setQuery ("SELECT count(id) as count FROM #__virtuemart_adminmenuentries WHERE name='COM_VIRTUEMART_INPOSTPARCELS_LINK'");
 
@@ -679,6 +771,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	public function plgVmOnSelectCheckShipment (VirtueMartCart &$cart) {
 
+		//error_log("plgVmOnSelectCheckShipment function");
         $id = $this->_idName;
         if (!($method = $this->selectedThisByMethodId ($cart->$id))) {
             return NULL; // Another method was selected, do nothing
@@ -732,6 +825,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	public function plgVmDisplayListFEShipment (VirtueMartCart $cart, $selected = 0, &$htmlIn) {
 
+		//error_log("plgVmDisplayListFEShipment function");
 		return $this->displayListFE ($cart, $selected, $htmlIn);
 	}
 
@@ -742,6 +836,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 * @return bool|null
 	 */
 	public function plgVmOnSelectedCalculatePriceShipment (VirtueMartCart $cart, array &$cart_prices, &$cart_prices_name) {
+		//error_log("plgVmOnSelectedCalculatePriceShipment function");
 
 		return $this->onSelectedCalculatePrice ($cart, $cart_prices, $cart_prices_name);
 	}
@@ -758,6 +853,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	function plgVmOnCheckAutomaticSelectedShipment (VirtueMartCart $cart, array $cart_prices = array(), &$shipCounter) {
 
+		//error_log("plgVmOnCheckAutomaticSelectedShipment function");
 		if ($shipCounter > 1) {
 			return 0;
 		}
@@ -776,16 +872,19 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 	 */
 	function plgVmOnShowOrderPrint ($order_number, $method_id) {
 
+		//error_log("plgVmOnShowOrderPrint function");
 		return $this->onShowOrderPrint ($order_number, $method_id);
 	}
 
 	function plgVmDeclarePluginParamsShipment ($name, $id, &$data)
 	{
+		//error_log("plgVmDeclarePluginParamsShipment function");
 
 		return $this->declarePluginParams ('shipment', $name, $id, $data);
 	}
 	function plgVmDeclarePluginParamsShipmentVM3 (&$data)
 	{
+		//error_log("plgVmDeclarePluginParamsShipmentVM3 function");
 		return $this->declarePluginParams ('shipment', $data);
 	}
 
@@ -798,6 +897,7 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
      */
 	function plgVmSetOnTablePluginShipment(&$data,&$table)
 	{
+		//error_log("plgVmSetOnTablePluginShipment function");
 		$name = $data['shipment_element'];
 		$id = $data['shipment_jplugin_id'];
 
@@ -809,12 +909,17 @@ class plgVmShipmentInpostparcels extends vmPSPlugin
 		{
 			if(empty($data['API_URL']))
 			{
-				error_log("URL is empty.");
+				//error_log("URL is empty.");
 				//vmWarn('VMSHIPMENT_WEIGHT_COUNTRIES_ZIP_CONDITION_WRONG');
 			}
 		}
 
 		return $this->setOnTablePluginParams ($name, $id, $table);
+	}
+
+	public function plgVmOnUpdateOrderFE()
+	{
+		//error_log("in the plgVmOnUpdateFE method.");
 	}
 
 }

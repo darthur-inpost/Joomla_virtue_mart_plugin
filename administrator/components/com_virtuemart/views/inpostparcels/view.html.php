@@ -131,13 +131,13 @@ class VirtuemartViewInpostparcels extends VmViewAdmin
 				$parcelTargetAllMachinesId = array();
 				$parcelTargetAllMachinesDetail = array();
 				$machines = array();
-				if(is_array(@$allMachines['result']) && !empty($allMachines['result']))
+				if (is_array(@$allMachines['result']) && !empty($allMachines['result']))
 				{
-					foreach($allMachines['result'] as $key => $machine)
+					foreach ($allMachines['result'] as $key => $machine)
 					{
-						if(in_array($parcel->api_source, array('PL')))
+						if (in_array($parcel->api_source, array('PL')))
 						{
-							if($machine->payment_available == false)
+							if ($machine->payment_available == false)
 							{
 								continue;
 							}
@@ -155,12 +155,18 @@ class VirtuemartViewInpostparcels extends VmViewAdmin
 						'city' => @$machine->address->city
 						)
 						);
-						if($machine->address->post_code == @$parcelTargetMachineDetailDb->address->post_code)
+						//----------------------------
+						// We must use a binary safe
+						// search.
+						//----------------------------
+						if (stripos(@$parcelTargetMachineDetailDb->address->post_code,
+							$machine->address->post_code) !== false)
 						{
 							$machines[$key] = $machine;
 							continue;
 						}
-						elseif($machine->address->city == @$parcelTargetMachineDetailDb->address->city)
+						elseif (stripos(@$parcelTargetMachineDetailDb->address->city,
+							$machine->address->city) !== false)
 						{
 							$machines[$key] = $machine;
 						}
@@ -173,9 +179,9 @@ class VirtuemartViewInpostparcels extends VmViewAdmin
 				$parcelTargetMachinesDetail = array();
 				$defaultTargetMachine = JText::_('COM_VIRTUEMART_INPOSTPARCELS_VIEW_SELECT_MACHINE');
 				//print_r($parcelTargetMachineDetailDb);
-				if(is_array(@$machines) && !empty($machines))
+				if (is_array(@$machines) && !empty($machines))
 				{
-					foreach($machines as $key => $machine)
+					foreach ($machines as $key => $machine)
 					{
 						$parcelTargetMachinesId[$machine->id] = $machine->id.', '.@$machine->address->city.', '.@$machine->address->street;
 						$parcelTargetMachinesDetail[$machine->id] = $parcelTargetAllMachinesDetail[$machine->id];
